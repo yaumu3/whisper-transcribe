@@ -16,6 +16,11 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "dialog": {
+        "all": false,
+        "open": true,
+        "save": true
       }
     },
     "bundle": {
@@ -38,8 +43,10 @@
         "fullscreen": false,
         "resizable": true,
         "title": "whisper-transcribe",
-        "width": 800,
-        "height": 600
+        "width": 512,
+        "height": 384,
+        "minWidth": 512,
+        "minHeight": 384
       }
     ]
   }

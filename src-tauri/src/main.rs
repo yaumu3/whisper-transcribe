@@ -3,13 +3,13 @@
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn post_to_whisper(audio_file: &str) {
+    println!("[Rust] passed {} from JS.", audio_file)
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![post_to_whisper])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
