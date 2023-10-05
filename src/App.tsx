@@ -16,6 +16,7 @@ function App() {
     const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
       "tauri://file-drop",
       async (event) => {
+        // TODO: Extension check
         console.log(event);
         postToWhisper(event.payload[0]);
       }
