@@ -3,15 +3,37 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/api/dialog";
 import "./App.css";
 import { ALLOWED_FILE_EXTENSIONS } from "./constants";
+import { useEffect } from "react";
+import { TauriEvent, listen } from "@tauri-apps/api/event";
 
 function App() {
-  listen("tauri://file-drop", (event) => {
-    if (event.windowLabel !== "main") {
-      return;
-    }
-    console.log(event);
-    postToWhisper(event.payload[0]);
-  });
+  useEffect(() => {
+    const unlistenFileDropHover = listen<TauriEvent.WINDOW_FILE_DROP_HOVER>(
+      "tauri://file-drop-hover",
+      async (event) => {
+        console.log(event);
+      }
+    );
+    const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
+      "tauri://file-drop",
+      async (event) => {
+        console.log(event);
+        postToWhisper(event.payload[0]);
+      }
+    );
+    const unlistenFileDropCancelled =
+      listen<TauriEvent.WINDOW_FILE_DROP_CANCELLED>(
+        "tauri://file-drop-cancelled",
+        async (event) => {
+          console.log(event);
+        }
+      );
+    return () => {
+      unlistenFileDropHover.then((e) => e());
+      unlistenFileDrop.then((e) => e());
+      unlistenFileDropCancelled.then((e) => e());
+    };
+  }, []);
 
   const openFileChooseDialog = () => {
     open({
