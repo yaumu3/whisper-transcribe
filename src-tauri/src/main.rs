@@ -3,8 +3,8 @@
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn post_to_whisper(audio_file: &str) {
-    println!("[Rust] passed {} from JS.", audio_file)
+fn post_to_whisper(audio_file_path: &str) {
+    println!("[Rust] passed {} from JS.", audio_file_path)
 }
 
 fn main() {

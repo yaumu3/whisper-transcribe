@@ -1,9 +1,8 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { listen } from "@tauri-apps/api/event";
-import { open } from "@tauri-apps/api/dialog";
+import { confirm, open } from "@tauri-apps/api/dialog";
 import "./App.css";
 import { ALLOWED_FILE_EXTENSIONS } from "./constants";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TauriEvent, listen } from "@tauri-apps/api/event";
 
 function App() {
@@ -35,6 +34,9 @@ function App() {
     };
   }, []);
 
+  const [transcribingFileName, setTranscribingFileName] = useState<
+    string | null
+  >(null);
   const openFileChooseDialog = () => {
     open({
       directory: false,
@@ -57,24 +59,48 @@ function App() {
     });
   };
 
-  async function postToWhisper(audioFile: string) {
-    await new Promise((f) => setTimeout(f, 2000));
+  async function postToWhisper(audioFilePath: string) {
+    // TODO: Do nothing if already transcribing a file.
+    const audioFileName = audioFilePath.replace(/^.*[\\\/]/, "");
+    if (
+      !(await confirm(
+        `Are you sure to upload ${audioFileName}?`,
+        "WhisperTranscribe"
+      ))
+    ) {
+      return;
+    }
+    setTranscribingFileName(() => audioFileName);
+    await new Promise((f) => setTimeout(f, 5000));
     invoke("post_to_whisper", {
-      audioFile,
-    });
+      audioFilePath: audioFilePath,
+    }).finally(() => setTranscribingFileName(() => null));
   }
 
   return (
     <div className="container">
-      <div className="click-or-drop-area" onClick={openFileChooseDialog}>
-        <div className="speech-to-text-icon" />
-        <div className="speech-to-text-description">
-          <div className="click-or-drag-title">
-            Click or drop file to this area
+      {transcribingFileName === null ? (
+        <div className="click-or-drop-area" onClick={openFileChooseDialog}>
+          <div className="speech-to-text-icon" />
+          <div className="speech-to-text-description">
+            <div className="click-or-drag-title">
+              Click or drop file to this area
+            </div>
+            <div className="click-or-drag-caveat">
+              Maximum file size is 25MB.
+            </div>
           </div>
-          <div className="click-or-drag-caveat">Maximum file size is 25MB.</div>
         </div>
-      </div>
+      ) : (
+        <div className="click-or-drop-area transcribing">
+          <div className="speech-to-text-icon transcribing" />
+          <div className="speech-to-text-description">
+            <div className="click-or-drag-title">
+              Transcribing: {transcribingFileName}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

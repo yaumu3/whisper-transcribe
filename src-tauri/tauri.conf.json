@@ -19,6 +19,7 @@
       },
       "dialog": {
         "all": false,
+        "confirm": true,
         "open": true,
         "save": true
       }
@@ -42,7 +43,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "whisper-transcribe",
+        "title": "WhisperTranscribe",
         "width": 512,
         "height": 384,
         "minWidth": 512,
