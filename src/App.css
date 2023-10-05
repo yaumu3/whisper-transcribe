@@ -28,13 +28,11 @@
   width: 96px;
   height: 96px;
   background-color: #3875f6;
-  mask: url("./assets/speech_to_text.svg") no-repeat center center;
-  mask-size: cover;
+  mask: url("./assets/speech_to_text.svg") no-repeat center/cover;
 }
 
 .speech-to-text-icon.transcribing {
-  mask: url("./assets/gooey-balls.svg") no-repeat center center;
-  mask-size: cover;
+  mask: url("./assets/gooey-balls.svg") no-repeat center/cover;
 }
 
 .speech-to-text-description {
