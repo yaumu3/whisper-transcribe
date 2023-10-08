@@ -51,6 +51,7 @@
 
 .app-status-text-wrapper {
   display: flex;
+  margin-bottom: 16px;
   flex-direction: column;
   row-gap: 4px;
   align-items: center;
@@ -128,6 +129,37 @@
   background-color: #4096ff;
 }
 
+.button-config:hover {
+  background-color: #e2e2e2;
+}
+
+.api-key-title {
+  margin: 0 auto 8px 0;
+}
+
+.api-key-wrapper {
+  display: flex;
+}
+
+.api-key-input-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.api-key-input {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  color: #0f0f0f;
+  background-color: #ffffff;
+  outline: none;
+  margin-right: 8px;
+}
+
 @media (prefers-color-scheme: dark) {
   .click-or-drop-area {
     background-color: #4b4b45;
@@ -147,5 +179,14 @@
 
   .button-discard:hover {
     background-color: #503939;
+  }
+
+  .button-config:hover {
+    background-color: #aeaeae;
+  }
+
+  .api-key-input {
+    color: #ffffff;
+    background-color: #0f0f0f98;
   }
 }

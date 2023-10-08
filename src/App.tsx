@@ -9,6 +9,7 @@ enum AppStatus {
   Idle,
   Transcribing,
   Transcribed,
+  Config,
 }
 
 function App() {
@@ -28,6 +29,9 @@ function App() {
   const setAppStatusToTranscribed = (transcribedText: string) => {
     setAppStatus(() => AppStatus.Transcribed);
     setTranscription(() => transcribedText);
+  };
+  const setAppStatusToConfig = () => {
+    setAppStatus(() => AppStatus.Config);
   };
 
   useEffect(() => {
@@ -143,6 +147,15 @@ function App() {
       );
   };
 
+  const discardConfig = () => {
+    resetAppStatus();
+  };
+
+  const saveConfig = () => {
+    // TODO: save config
+    resetAppStatus();
+  };
+
   const render = () => {
     switch (appStatus) {
       case AppStatus.Idle:
@@ -162,6 +175,17 @@ function App() {
               </div>
               <div className="app-status-caveat">
                 Maximum file size is 25MB.
+              </div>
+            </div>
+            <div>
+              <div
+                className="button button-config"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAppStatusToConfig();
+                }}
+              >
+                Config
               </div>
             </div>
           </div>
@@ -193,6 +217,30 @@ function App() {
                 Discard
               </div>
               <div className="button button-save" onClick={saveTranscription}>
+                Save
+              </div>
+            </div>
+          </div>
+        );
+      case AppStatus.Config:
+        return (
+          <div className="click-or-drop-area transcribed">
+            <div className="config-form-wrapper">
+              <div className="api-key-title">OpenAI API key</div>
+              <div className="api-key-input-wrapper">
+                <input
+                  className="api-key-input"
+                  type="password"
+                  placeholder="sk-..."
+                ></input>
+              </div>
+            </div>
+
+            <div className="buttons">
+              <div className="button button-discard" onClick={discardConfig}>
+                Discard
+              </div>
+              <div className="button button-save" onClick={saveConfig}>
                 Save
               </div>
             </div>
