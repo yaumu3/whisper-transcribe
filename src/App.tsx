@@ -60,14 +60,13 @@ function App() {
   };
 
   const postToWhisper = async (filePath: string) => {
-    const audioFileName = filePath.replace(/^.*[\\\/]/, "");
+    const fileName = filePath.replace(/^.*[\\\/]/, "");
     const uploadConfirmed = await confirm(
-      `Are you sure to upload ${audioFileName}?`,
-      "WhisperTranscribe"
+      `Are you sure to upload ${fileName}?`
     );
     if (!uploadConfirmed) return;
 
-    setAppStatusToTranscribing(filePath);
+    setAppStatusToTranscribing(fileName);
     invoke<string>("post_to_whisper", {
       lang: "en",
       filePath: filePath,
@@ -169,7 +168,10 @@ function App() {
             <div className="app-status-icon transcribing" />
             <div className="app-status-text-wrapper">
               <div className="app-status-text">
-                Transcribing: {transcribingFileName}
+                Transcribing {transcribingFileName}
+              </div>
+              <div className="app-status-caveat">
+                This may take a few minutes.
               </div>
             </div>
           </div>
@@ -177,10 +179,8 @@ function App() {
       case AppStatus.Transcribed:
         return (
           <div className="click-or-drop-area transcribed">
-            <div className="app-status-text">
-              Transcribed: {transcribingFileName}
-            </div>
-            <div className="transcribed-text">{transcription}</div>
+            <div className="transcribed-file-name">{transcribingFileName}</div>
+            <div className="transcription">{transcription}</div>
             <div className="buttons">
               <div
                 className="button button-discard"

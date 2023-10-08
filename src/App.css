@@ -8,7 +8,7 @@
   row-gap: 8px;
   justify-content: center;
   align-items: center;
-  border-radius: 24px;
+  border-radius: 16px;
   background-color: #f1f1f1;
   -webkit-user-select: none;
   user-select: none;
@@ -67,14 +67,22 @@
 }
 
 .app-status-caveat {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 200;
 }
 
-.transcribed-text {
+.transcribed-file-name {
+  width: 100%;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.transcription {
   flex: 1;
   overflow: scroll;
   text-align: left;
+  font-size: 12px;
   -webkit-user-select: auto;
   user-select: auto;
   cursor: text;
@@ -83,11 +91,13 @@
 .buttons {
   display: flex;
   flex-direction: row;
+  width: 100%;
   gap: 16px;
 }
 
 .button {
   padding: 4px 16px;
+  flex: 1;
   border: 1px solid;
   border-radius: 4px;
   transition: 0.3s;
@@ -133,5 +143,9 @@
 
   .app-status-icon {
     background-color: #a3dbfa;
+  }
+
+  .button-discard:hover {
+    background-color: #503939;
   }
 }
