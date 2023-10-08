@@ -20,6 +20,7 @@
       "dialog": {
         "all": false,
         "confirm": true,
+        "message": true,
         "open": true,
         "save": true
       }
@@ -45,9 +46,9 @@
         "resizable": true,
         "title": "WhisperTranscribe",
         "width": 400,
-        "height": 300,
+        "height": 512,
         "minWidth": 400,
-        "minHeight": 300
+        "minHeight": 512
       }
     ]
   }

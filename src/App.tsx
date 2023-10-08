@@ -1,9 +1,15 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { confirm, open } from "@tauri-apps/api/dialog";
+import { confirm, message, open, save } from "@tauri-apps/api/dialog";
 import "./App.css";
 import { ALLOWED_FILE_EXTENSIONS } from "./constants";
 import { useEffect, useState } from "react";
 import { TauriEvent, listen } from "@tauri-apps/api/event";
+
+enum AppStatus {
+  Idle,
+  Transcribing,
+  Transcribed,
+}
 
 function App() {
   useEffect(() => {
@@ -16,9 +22,10 @@ function App() {
     const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
       "tauri://file-drop",
       async (event) => {
-        // TODO: Extension check
         console.log(event);
-        postToWhisper(event.payload[0]);
+        if (appStatus === AppStatus.Idle) {
+          postToWhisper(event.payload[0]);
+        }
       }
     );
     const unlistenFileDropCancelled =
@@ -35,9 +42,23 @@ function App() {
     };
   }, []);
 
-  const [transcribingFileName, setTranscribingFileName] = useState<
-    string | null
-  >(null);
+  const [appStatus, setAppStatus] = useState(AppStatus.Idle);
+  const [transcribingFileName, setTranscribingFileName] = useState("");
+  const [transcription, setTranscription] = useState("");
+  const resetAppStatus = () => {
+    setAppStatus(() => AppStatus.Idle);
+    setTranscribingFileName(() => "");
+    setTranscription(() => "");
+  };
+  const setAppStatusToTranscribing = (fileNameToTranscribe: string) => {
+    setAppStatus(() => AppStatus.Transcribing);
+    setTranscribingFileName(() => fileNameToTranscribe);
+  };
+  const setAppStatusToTranscribed = (transcribedText: string) => {
+    setAppStatus(() => AppStatus.Transcribed);
+    setTranscription(() => transcribedText);
+  };
+
   const openFileChooseDialog = () => {
     open({
       directory: false,
@@ -60,50 +81,120 @@ function App() {
     });
   };
 
-  async function postToWhisper(audioFilePath: string) {
-    // TODO: Do nothing if already transcribing a file.
-    const audioFileName = audioFilePath.replace(/^.*[\\\/]/, "");
-    if (
-      !(await confirm(
-        `Are you sure to upload ${audioFileName}?`,
-        "WhisperTranscribe"
-      ))
-    ) {
-      return;
+  const discardTranscription = async () => {
+    const discardConfirmed = await confirm(
+      "Are you sure to discard the transcription?",
+      "Discard the transcription"
+    );
+    if (discardConfirmed) {
+      resetAppStatus();
     }
-    setTranscribingFileName(() => audioFileName);
-    await new Promise((f) => setTimeout(f, 5000));
-    invoke("post_to_whisper", {
-      audioFilePath: audioFilePath,
-    }).finally(() => setTranscribingFileName(() => null));
+  };
+
+  const saveTranscription = async () => {
+    const saveFilePath = await save({
+      filters: [
+        {
+          name: "Text",
+          extensions: ["txt"],
+        },
+      ],
+    });
+    invoke("save_transcription", {
+      text: transcription,
+      filePath: saveFilePath,
+    })
+      .then(() => resetAppStatus())
+      .catch(
+        async () =>
+          await message(
+            [
+              "Something went wrong while saving the transcription.",
+              "Please change the destination or copy & paste the text manually.",
+            ].join("\n"),
+            { title: "", type: "error" }
+          )
+      );
+  };
+
+  async function postToWhisper(filePath: string) {
+    const audioFileName = filePath.replace(/^.*[\\\/]/, "");
+    const uploadConfirmed = await confirm(
+      `Are you sure to upload ${audioFileName}?`,
+      "WhisperTranscribe"
+    );
+    if (!uploadConfirmed) return;
+
+    setAppStatusToTranscribing(filePath);
+    invoke<string>("post_to_whisper", {
+      lang: "en",
+      filePath: filePath,
+    })
+      .then((res) => {
+        setAppStatusToTranscribed(res);
+      })
+      .catch(async (e) => {
+        resetAppStatus();
+        await message(e, { title: "", type: "error" });
+      });
   }
 
-  return (
-    <div className="container">
-      {transcribingFileName === null ? (
-        <div className="click-or-drop-area" onClick={openFileChooseDialog}>
-          <div className="speech-to-text-icon" />
-          <div className="speech-to-text-description">
-            <div className="click-or-drag-title">
-              Click or drop file to this area
-            </div>
-            <div className="click-or-drag-caveat">
-              Maximum file size is 25MB.
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="click-or-drop-area transcribing">
-          <div className="speech-to-text-icon transcribing" />
-          <div className="speech-to-text-description">
-            <div className="click-or-drag-title">
-              Transcribing: {transcribingFileName}
+  const render = () => {
+    switch (appStatus) {
+      case AppStatus.Idle:
+        return (
+          <div
+            className="click-or-drop-area idle"
+            onClick={openFileChooseDialog}
+          >
+            <div className="app-status-icon idle" />
+            <div className="app-status-text-wrapper">
+              <div className="app-status-text">
+                Click or drop file to this area
+              </div>
+              <div className="app-status-caveat">
+                Maximum file size is 25MB.
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        );
+      case AppStatus.Transcribing:
+        return (
+          <div className="click-or-drop-area transcribing">
+            <div className="app-status-icon transcribing" />
+            <div className="app-status-text-wrapper">
+              <div className="app-status-text">
+                Transcribing: {transcribingFileName}
+              </div>
+            </div>
+          </div>
+        );
+      case AppStatus.Transcribed:
+        return (
+          <div className="click-or-drop-area transcribed">
+            <div className="app-status-text">
+              Transcribed: {transcribingFileName}
+            </div>
+            <div className="transcribed-text">{transcription}</div>
+            <div className="buttons">
+              <div
+                className="button button-discard"
+                onClick={discardTranscription}
+              >
+                Discard
+              </div>
+              <div className="button button-save" onClick={saveTranscription}>
+                Save
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return <div />;
+    }
+  };
+
+  return <div className="container">{render()}</div>;
 }
 
 export default App;

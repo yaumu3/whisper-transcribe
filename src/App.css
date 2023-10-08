@@ -1,68 +1,137 @@
 .click-or-drop-area {
   display: flex;
   flex-direction: column;
+  height: 0px;
   flex: 1;
-  margin: 24px 24px;
-  padding: 32px 32px;
-  row-gap: 16px;
+  margin: 16px 16px;
+  padding: 24px 24px 16px 24px;
+  row-gap: 8px;
   justify-content: center;
   align-items: center;
-  border: 2px dashed #d9d9d9;
   border-radius: 24px;
   background-color: #f1f1f1;
-  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
   transition: 0.3s;
 }
 
-.click-or-drop-area:hover {
+.click-or-drop-area.idle {
+  border: 2px dashed;
+  border-color: #d9d9d9;
+  cursor: pointer;
+}
+
+.click-or-drop-area.idle:hover {
   border-color: #3875f6;
   transition: 0.2s;
 }
 
 .click-or-drop-area.transcribing {
-  border-width: 0;
   cursor: progress;
 }
 
-.speech-to-text-icon {
-  width: 96px;
-  height: 96px;
-  background-color: #3875f6;
-  mask: url("./assets/speech_to_text.svg") no-repeat center/cover;
+.click-or-drop-area.transcribed {
+  cursor: default;
 }
 
-.speech-to-text-icon.transcribing {
+.app-status-icon {
+  width: 96px;
+  height: 96px;
+  background-color: #1677ff;
+  mask-repeat: no-repeat;
+}
+
+.app-status-icon.idle {
+  mask: url("./assets/speech-to-text.svg") no-repeat center/cover;
+}
+
+.app-status-icon.transcribing {
   mask: url("./assets/gooey-balls.svg") no-repeat center/cover;
 }
 
-.speech-to-text-description {
+.app-status-text-wrapper {
   display: flex;
   flex-direction: column;
   row-gap: 4px;
   align-items: center;
+  width: 100%;
 }
 
-.click-or-drag-title {
+.app-status-text {
   font-size: 16px;
   font-weight: 800;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.click-or-drag-caveat {
+.app-status-caveat {
   font-size: 14px;
-  font-weight: 300;
+  font-weight: 200;
+}
+
+.transcribed-text {
+  flex: 1;
+  overflow: scroll;
+  text-align: left;
+  -webkit-user-select: auto;
+  user-select: auto;
+  cursor: text;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.button {
+  padding: 4px 16px;
+  border: 1px solid;
+  border-radius: 4px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.button:hover {
+  transition: 0.2s;
+}
+
+.button-discard {
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+.button-discard:hover {
+  background-color: #fff2f0;
+}
+
+.button-save {
+  border-color: #1677ff;
+  background-color: #1677ff;
+  color: #f6f6f6;
+}
+
+.button-save:hover {
+  border-color: #4096ff;
+  background-color: #4096ff;
 }
 
 @media (prefers-color-scheme: dark) {
   .click-or-drop-area {
     background-color: #4b4b45;
+  }
+
+  .click-or-drop-area.idle {
     border-color: #6a686a;
   }
 
-  .click-or-drop-area:hover {
+  .click-or-drop-area.idle:hover {
     border-color: #a3dbfa;
   }
 
-  .speech-to-text-icon {
+  .app-status-icon {
     background-color: #a3dbfa;
   }
 }
