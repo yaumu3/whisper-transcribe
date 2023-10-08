@@ -44,7 +44,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "WhisperTranscribe",
+        "title": "whisper-transcribe",
         "width": 400,
         "height": 512,
         "minWidth": 400,
