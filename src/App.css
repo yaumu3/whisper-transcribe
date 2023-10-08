@@ -21,7 +21,7 @@
   cursor: pointer;
 }
 
-.click-or-drop-area.idle:hover {
+.click-or-drop-area.idle.hover {
   border-color: #3875f6;
   transition: 0.2s;
 }
@@ -137,7 +137,7 @@
     border-color: #6a686a;
   }
 
-  .click-or-drop-area.idle:hover {
+  .click-or-drop-area.idle.hover {
     border-color: #a3dbfa;
   }
 

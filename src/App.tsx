@@ -12,36 +12,7 @@ enum AppStatus {
 }
 
 function App() {
-  useEffect(() => {
-    const unlistenFileDropHover = listen<TauriEvent.WINDOW_FILE_DROP_HOVER>(
-      "tauri://file-drop-hover",
-      async (event) => {
-        console.log(event);
-      }
-    );
-    const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
-      "tauri://file-drop",
-      async (event) => {
-        console.log(event);
-        if (appStatus === AppStatus.Idle) {
-          postToWhisper(event.payload[0]);
-        }
-      }
-    );
-    const unlistenFileDropCancelled =
-      listen<TauriEvent.WINDOW_FILE_DROP_CANCELLED>(
-        "tauri://file-drop-cancelled",
-        async (event) => {
-          console.log(event);
-        }
-      );
-    return () => {
-      unlistenFileDropHover.then((e) => e());
-      unlistenFileDrop.then((e) => e());
-      unlistenFileDropCancelled.then((e) => e());
-    };
-  }, []);
-
+  const [hoveringClickOrDropArea, setHoveringClickOrDropArea] = useState(false);
   const [appStatus, setAppStatus] = useState(AppStatus.Idle);
   const [transcribingFileName, setTranscribingFileName] = useState("");
   const [transcription, setTranscription] = useState("");
@@ -58,6 +29,36 @@ function App() {
     setAppStatus(() => AppStatus.Transcribed);
     setTranscription(() => transcribedText);
   };
+
+  useEffect(() => {
+    const unlistenFileDropHover = listen<TauriEvent.WINDOW_FILE_DROP_HOVER>(
+      "tauri://file-drop-hover",
+      async () => {
+        setHoveringClickOrDropArea(true);
+      }
+    );
+    const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
+      "tauri://file-drop",
+      async (event) => {
+        setHoveringClickOrDropArea(false);
+        if (appStatus === AppStatus.Idle) {
+          postToWhisper(event.payload[0]);
+        }
+      }
+    );
+    const unlistenFileDropCancelled =
+      listen<TauriEvent.WINDOW_FILE_DROP_CANCELLED>(
+        "tauri://file-drop-cancelled",
+        async () => {
+          setHoveringClickOrDropArea(false);
+        }
+      );
+    return () => {
+      unlistenFileDropHover.then((e) => e());
+      unlistenFileDrop.then((e) => e());
+      unlistenFileDropCancelled.then((e) => e());
+    };
+  }, []);
 
   const postToWhisper = async (filePath: string) => {
     const fileName = filePath.replace(/^.*[\\\/]/, "");
@@ -97,7 +98,6 @@ function App() {
       if (file === null || Array.isArray(file)) {
         return;
       }
-      console.log(file);
       postToWhisper(file);
     });
   };
@@ -148,8 +148,12 @@ function App() {
       case AppStatus.Idle:
         return (
           <div
-            className="click-or-drop-area idle"
+            className={`click-or-drop-area idle ${
+              hoveringClickOrDropArea ? "hover" : ""
+            }`}
             onClick={openFileChooseDialog}
+            onPointerEnter={() => setHoveringClickOrDropArea(true)}
+            onPointerLeave={() => setHoveringClickOrDropArea(false)}
           >
             <div className="app-status-icon idle" />
             <div className="app-status-text-wrapper">
