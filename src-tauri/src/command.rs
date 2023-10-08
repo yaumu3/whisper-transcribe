@@ -7,7 +7,7 @@ pub fn set_api_key_to_config_file(api_key: &str) -> Result<(), String> {
     }
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn post_to_whisper(lang: &str, file_path: &str) -> Result<String, String> {
     let api_key = match crate::config::get_api_key() {
         Ok(Some(api_key)) => api_key,
@@ -19,4 +19,12 @@ pub fn post_to_whisper(lang: &str, file_path: &str) -> Result<String, String> {
         Err(e) => return Err(e.to_string()),
     };
     Ok(response)
+}
+
+#[tauri::command(async)]
+pub fn save_transcription(transcription: &str, save_file_path: &str) -> Result<(), String> {
+    match std::fs::write(save_file_path, transcription) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
 }

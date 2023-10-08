@@ -59,6 +59,28 @@ function App() {
     setTranscription(() => transcribedText);
   };
 
+  const postToWhisper = async (filePath: string) => {
+    const audioFileName = filePath.replace(/^.*[\\\/]/, "");
+    const uploadConfirmed = await confirm(
+      `Are you sure to upload ${audioFileName}?`,
+      "WhisperTranscribe"
+    );
+    if (!uploadConfirmed) return;
+
+    setAppStatusToTranscribing(filePath);
+    invoke<string>("post_to_whisper", {
+      lang: "en",
+      filePath: filePath,
+    })
+      .then((res) => {
+        setAppStatusToTranscribed(res);
+      })
+      .catch(async (e) => {
+        resetAppStatus();
+        await message(e, { title: "", type: "error" });
+      });
+  };
+
   const openFileChooseDialog = () => {
     open({
       directory: false,
@@ -83,9 +105,10 @@ function App() {
 
   const discardTranscription = async () => {
     const discardConfirmed = await confirm(
-      "Are you sure to discard the transcription?",
-      "Discard the transcription"
+      "Are you sure to discard the transcription?\nThis action cannot be reverted.",
+      { type: "warning" }
     );
+
     if (discardConfirmed) {
       resetAppStatus();
     }
@@ -100,9 +123,13 @@ function App() {
         },
       ],
     });
+    if (saveFilePath === null) {
+      // Save dialog was dismissed without specifying a path
+      return;
+    }
     invoke("save_transcription", {
-      text: transcription,
-      filePath: saveFilePath,
+      transcription,
+      saveFilePath: saveFilePath,
     })
       .then(() => resetAppStatus())
       .catch(
@@ -116,28 +143,6 @@ function App() {
           )
       );
   };
-
-  async function postToWhisper(filePath: string) {
-    const audioFileName = filePath.replace(/^.*[\\\/]/, "");
-    const uploadConfirmed = await confirm(
-      `Are you sure to upload ${audioFileName}?`,
-      "WhisperTranscribe"
-    );
-    if (!uploadConfirmed) return;
-
-    setAppStatusToTranscribing(filePath);
-    invoke<string>("post_to_whisper", {
-      lang: "en",
-      filePath: filePath,
-    })
-      .then((res) => {
-        setAppStatusToTranscribed(res);
-      })
-      .catch(async (e) => {
-        resetAppStatus();
-        await message(e, { title: "", type: "error" });
-      });
-  }
 
   const render = () => {
     switch (appStatus) {
