@@ -101,6 +101,8 @@
   padding: 4px 16px;
   flex: 1;
   border: 1px solid;
+  background-color: transparent;
+  color: inherit;
   border-radius: 4px;
   transition: 0.3s;
   cursor: pointer;

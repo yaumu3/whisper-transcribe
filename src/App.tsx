@@ -24,8 +24,6 @@ function App() {
   const [transcription, setTranscription] = useState("");
   const resetAppStatus = () => {
     setAppStatus(() => AppStatus.Idle);
-    setTranscribingFileName(() => "");
-    setTranscription(() => "");
   };
   const setAppStatusToTranscribing = (fileNameToTranscribe: string) => {
     setAppStatus(() => AppStatus.Transcribing);
@@ -213,7 +211,7 @@ function App() {
               </div>
             </div>
             <div>
-              <div
+              <button
                 className="button button-default"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -221,7 +219,7 @@ function App() {
                 }}
               >
                 Config
-              </div>
+              </button>
             </div>
           </div>
         );
@@ -245,15 +243,18 @@ function App() {
             <div className="transcribed-file-name">{transcribingFileName}</div>
             <div className="transcription">{transcription}</div>
             <div className="buttons">
-              <div
+              <button
                 className="button button-discard"
                 onClick={discardTranscription}
               >
                 Discard
-              </div>
-              <div className="button button-save" onClick={saveTranscription}>
+              </button>
+              <button
+                className="button button-save"
+                onClick={saveTranscription}
+              >
                 Save
-              </div>
+              </button>
             </div>
           </div>
         );
@@ -294,12 +295,15 @@ function App() {
                 <Input type="number" />
               </LabeledItem>
               <div className="buttons">
-                <div className="button button-default" onClick={cancelConfig}>
+                <button
+                  className="button button-default"
+                  onClick={cancelConfig}
+                >
                   Cancel
-                </div>
-                <div className="button button-save" onClick={saveConfig}>
+                </button>
+                <button className="button button-save" onClick={saveConfig}>
                   Save
-                </div>
+                </button>
               </div>
             </form>
           </div>
