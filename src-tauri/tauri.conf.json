@@ -23,6 +23,9 @@
         "message": true,
         "open": true,
         "save": true
+      },
+      "window": {
+        "close": true
       }
     },
     "bundle": {

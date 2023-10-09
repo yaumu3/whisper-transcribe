@@ -4,6 +4,7 @@ import "./App.css";
 import { ALLOWED_FILE_EXTENSIONS } from "./constants";
 import { useEffect, useState } from "react";
 import { TauriEvent, listen } from "@tauri-apps/api/event";
+import { appWindow } from "@tauri-apps/api/window";
 
 enum AppStatus {
   Idle,
@@ -34,15 +35,42 @@ function App() {
     setAppStatus(() => AppStatus.Config);
   };
 
+  const warningBeforeAbortingTranscriptionProcess =
+    "There is an ongoing transcription process. Are you sure to discard it? This action cannot be reverted.";
+  const warningBeforeDiscardingTranscription =
+    "There is an unsaved transcription. Are you sure to discard it? This action cannot be reverted.";
+
   useEffect(() => {
+    const unlistenWindowCloseRequested = appWindow.onCloseRequested(
+      async (e) => {
+        const isOkToCloseWindow = async () => {
+          switch (appStatus) {
+            case AppStatus.Transcribing:
+              return await confirm(warningBeforeAbortingTranscriptionProcess, {
+                type: "warning",
+              });
+            case AppStatus.Transcribed:
+              return await confirm(warningBeforeDiscardingTranscription, {
+                type: "warning",
+              });
+            default:
+              return true;
+          }
+        };
+        if (await isOkToCloseWindow()) {
+          return;
+        }
+        e.preventDefault();
+      }
+    );
     const unlistenFileDropHover = listen<TauriEvent.WINDOW_FILE_DROP_HOVER>(
-      "tauri://file-drop-hover",
+      TauriEvent.WINDOW_FILE_DROP_HOVER,
       async () => {
         setHoveringClickOrDropArea(true);
       }
     );
     const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
-      "tauri://file-drop",
+      TauriEvent.WINDOW_FILE_DROP,
       async (event) => {
         setHoveringClickOrDropArea(false);
         if (appStatus === AppStatus.Idle) {
@@ -52,17 +80,20 @@ function App() {
     );
     const unlistenFileDropCancelled =
       listen<TauriEvent.WINDOW_FILE_DROP_CANCELLED>(
-        "tauri://file-drop-cancelled",
+        TauriEvent.WINDOW_FILE_DROP_CANCELLED,
         async () => {
           setHoveringClickOrDropArea(false);
         }
       );
     return () => {
-      unlistenFileDropHover.then((e) => e());
-      unlistenFileDrop.then((e) => e());
-      unlistenFileDropCancelled.then((e) => e());
+      [
+        unlistenWindowCloseRequested,
+        unlistenFileDropHover,
+        unlistenFileDrop,
+        unlistenFileDropCancelled,
+      ].forEach((promise) => promise.then((e) => e()));
     };
-  }, []);
+  }, [appStatus]);
 
   const postToWhisper = async (filePath: string) => {
     const fileName = filePath.replace(/^.*[\\\/]/, "");
@@ -108,7 +139,7 @@ function App() {
 
   const discardTranscription = async () => {
     const discardConfirmed = await confirm(
-      "Are you sure to discard the transcription?\nThis action cannot be reverted.",
+      warningBeforeDiscardingTranscription,
       { type: "warning" }
     );
 
