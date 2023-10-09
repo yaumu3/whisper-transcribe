@@ -1,0 +1,19 @@
+.input {
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 8px 16px;
+  width: 100%;
+  border-radius: 4px;
+  border: 0;
+  font-size: 1em;
+  font-family: inherit;
+  color: #0f0f0f;
+  background-color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .input {
+    color: #ffffff;
+    background-color: #0f0f0f98;
+  }
+}

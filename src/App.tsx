@@ -1,10 +1,14 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { confirm, message, open, save } from "@tauri-apps/api/dialog";
+import { shell } from "@tauri-apps/api";
 import "./App.css";
 import { ALLOWED_FILE_EXTENSIONS } from "./constants";
 import { useEffect, useState } from "react";
 import { TauriEvent, listen } from "@tauri-apps/api/event";
 import { appWindow } from "@tauri-apps/api/window";
+import Input from "./components/Input";
+import TextArea from "./components/TextArea";
+import LabeledItem from "./components/LabeledItem";
 
 enum AppStatus {
   Idle,
@@ -178,7 +182,7 @@ function App() {
       );
   };
 
-  const discardConfig = () => {
+  const cancelConfig = () => {
     resetAppStatus();
   };
 
@@ -210,7 +214,7 @@ function App() {
             </div>
             <div>
               <div
-                className="button button-config"
+                className="button button-default"
                 onClick={(e) => {
                   e.stopPropagation();
                   setAppStatusToConfig();
@@ -256,25 +260,48 @@ function App() {
       case AppStatus.Config:
         return (
           <div className="click-or-drop-area transcribed">
-            <div className="config-form-wrapper">
-              <div className="api-key-title">OpenAI API key</div>
-              <div className="api-key-input-wrapper">
-                <input
-                  className="api-key-input"
-                  type="password"
-                  placeholder="sk-..."
-                ></input>
+            <form className="config-form">
+              <LabeledItem title="OpenAI API key">
+                <Input type="password" placeholder="sk-..." />
+              </LabeledItem>
+              <LabeledItem
+                title="Language (Optional)"
+                tooltipElement={
+                  <>
+                    <span
+                      className="link-like-text"
+                      onClick={() =>
+                        shell.open(
+                          "https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes"
+                        )
+                      }
+                    >
+                      ISO 639-1
+                    </span>
+                    &nbsp;code
+                  </>
+                }
+              >
+                <Input type="text" spellcheck={false} />
+              </LabeledItem>
+              <LabeledItem title="Prompt (Optional)" grow={true}>
+                <TextArea />
+              </LabeledItem>
+              <LabeledItem
+                title="Temperature (Optional)"
+                tooltipElement={<>Between 0 and 1</>}
+              >
+                <Input type="number" />
+              </LabeledItem>
+              <div className="buttons">
+                <div className="button button-default" onClick={cancelConfig}>
+                  Cancel
+                </div>
+                <div className="button button-save" onClick={saveConfig}>
+                  Save
+                </div>
               </div>
-            </div>
-
-            <div className="buttons">
-              <div className="button button-discard" onClick={discardConfig}>
-                Discard
-              </div>
-              <div className="button button-save" onClick={saveConfig}>
-                Save
-              </div>
-            </div>
+            </form>
           </div>
         );
       default:
