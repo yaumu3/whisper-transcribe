@@ -62,35 +62,37 @@ function App() {
         e.preventDefault();
       }
     );
-    const unlistenFileDropHover = listen<TauriEvent.WINDOW_FILE_DROP_HOVER>(
-      TauriEvent.WINDOW_FILE_DROP_HOVER,
-      async () => {
-        setHoveringClickOrDropArea(true);
-      }
-    );
-    const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
-      TauriEvent.WINDOW_FILE_DROP,
-      async (event) => {
-        setHoveringClickOrDropArea(false);
-        if (appStatus === AppStatus.Idle) {
-          postToWhisper(event.payload[0]);
-        }
-      }
-    );
-    const unlistenFileDropCancelled =
-      listen<TauriEvent.WINDOW_FILE_DROP_CANCELLED>(
-        TauriEvent.WINDOW_FILE_DROP_CANCELLED,
+    const unlisteners = [unlistenWindowCloseRequested];
+
+    // File hover by tauri API
+    if (appStatus === AppStatus.Idle) {
+      const unlistenFileDropHover = listen<TauriEvent.WINDOW_FILE_DROP_HOVER>(
+        TauriEvent.WINDOW_FILE_DROP_HOVER,
         async () => {
-          setHoveringClickOrDropArea(false);
+          setHoveringClickOrDropArea(true);
         }
       );
+      const unlistenFileDrop = listen<TauriEvent.WINDOW_FILE_DROP>(
+        TauriEvent.WINDOW_FILE_DROP,
+        async (event) => {
+          setHoveringClickOrDropArea(false);
+          postToWhisper(event.payload[0]);
+        }
+      );
+      const unlistenFileDropCancelled =
+        listen<TauriEvent.WINDOW_FILE_DROP_CANCELLED>(
+          TauriEvent.WINDOW_FILE_DROP_CANCELLED,
+          async () => {
+            setHoveringClickOrDropArea(false);
+          }
+        );
+      unlisteners.push(
+        ...[unlistenFileDropHover, unlistenFileDrop, unlistenFileDropCancelled]
+      );
+    }
+
     return () => {
-      [
-        unlistenWindowCloseRequested,
-        unlistenFileDropHover,
-        unlistenFileDrop,
-        unlistenFileDropCancelled,
-      ].forEach((promise) => promise.then((e) => e()));
+      unlisteners.forEach((unlistener) => unlistener.then((e) => e()));
     };
   }, [appStatus]);
 
