@@ -236,7 +236,7 @@ function App() {
         );
       case AppStatus.Transcribed:
         return (
-          <div className="click-or-drop-area transcribed">
+          <div className="click-or-drop-area inactive">
             <div className="transcribed-file-name">{transcribingFileName}</div>
             <div className="transcription">{transcription}</div>
             <div className="buttons">
@@ -257,7 +257,7 @@ function App() {
         );
       case AppStatus.Config:
         return (
-          <div className="click-or-drop-area transcribed">
+          <div className="click-or-drop-area inactive">
             <ConfigForm cancelConfig={cancelConfig} saveConfig={saveConfig} />
           </div>
         );

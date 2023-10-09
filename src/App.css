@@ -30,7 +30,7 @@
   cursor: progress;
 }
 
-.click-or-drop-area.transcribed {
+.click-or-drop-area.inactive {
   cursor: default;
 }
 
