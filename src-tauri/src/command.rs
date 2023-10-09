@@ -1,4 +1,13 @@
 #[tauri::command]
+pub fn get_api_key_from_config_file() -> Result<String, String> {
+    match crate::config::get_api_key() {
+        Ok(Some(api_key)) => Ok(api_key),
+        Ok(_) => Err("No API key found in config file".to_owned()),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
 pub fn set_api_key_to_config_file(api_key: &str) -> Result<(), String> {
     if crate::config::set_api_key(api_key).is_ok() {
         Ok(())

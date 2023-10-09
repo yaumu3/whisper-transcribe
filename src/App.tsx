@@ -1,14 +1,11 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { confirm, message, open, save } from "@tauri-apps/api/dialog";
-import { shell } from "@tauri-apps/api";
 import "./App.css";
 import { ALLOWED_FILE_EXTENSIONS } from "./constants";
 import { useEffect, useState } from "react";
 import { TauriEvent, listen } from "@tauri-apps/api/event";
 import { appWindow } from "@tauri-apps/api/window";
-import Input from "./components/Input";
-import TextArea from "./components/TextArea";
-import LabeledItem from "./components/LabeledItem";
+import ConfigForm from "./components/ConfigForm";
 
 enum AppStatus {
   Idle,
@@ -261,51 +258,7 @@ function App() {
       case AppStatus.Config:
         return (
           <div className="click-or-drop-area transcribed">
-            <form className="config-form">
-              <LabeledItem title="OpenAI API key">
-                <Input type="password" placeholder="sk-..." />
-              </LabeledItem>
-              <LabeledItem
-                title="Language (Optional)"
-                tooltipElement={
-                  <>
-                    <span
-                      className="link-like-text"
-                      onClick={() =>
-                        shell.open(
-                          "https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes"
-                        )
-                      }
-                    >
-                      ISO 639-1
-                    </span>
-                    &nbsp;code
-                  </>
-                }
-              >
-                <Input type="text" spellcheck={false} />
-              </LabeledItem>
-              <LabeledItem title="Prompt (Optional)" grow={true}>
-                <TextArea />
-              </LabeledItem>
-              <LabeledItem
-                title="Temperature (Optional)"
-                tooltipElement={<>Between 0 and 1</>}
-              >
-                <Input type="number" />
-              </LabeledItem>
-              <div className="buttons">
-                <button
-                  className="button button-default"
-                  onClick={cancelConfig}
-                >
-                  Cancel
-                </button>
-                <button className="button button-save" onClick={saveConfig}>
-                  Save
-                </button>
-              </div>
-            </form>
+            <ConfigForm cancelConfig={cancelConfig} saveConfig={saveConfig} />
           </div>
         );
       default:
