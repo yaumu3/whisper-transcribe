@@ -1,4 +1,14 @@
+use serde::{Deserialize, Serialize};
 use std::{fs, io, path::PathBuf};
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Config {
+    pub api_key: String,
+    pub language: Option<String>,
+    pub prompt: Option<String>,
+    pub temperature: Option<f32>,
+}
 
 fn get_config_path() -> Result<Option<PathBuf>, io::Error> {
     let config_dir = match dirs_next::config_dir() {
@@ -11,19 +21,17 @@ fn get_config_path() -> Result<Option<PathBuf>, io::Error> {
     Ok(Some(config_path))
 }
 
-fn read_api_key_from_config() -> Result<Option<String>, io::Error> {
+fn read_config() -> Result<Option<Config>, io::Error> {
     let config_path = get_config_path()?;
     if let Some(path) = config_path {
         let content = fs::read_to_string(path)?;
-        let json: serde_json::Value = serde_json::from_str(&content)?;
-        if let Some(api_key) = json.get("apiKey").and_then(serde_json::Value::as_str) {
-            return Ok(Some(api_key.to_string()));
-        }
+        let config: Config = serde_json::from_str(&content)?;
+        return Ok(Some(config));
     }
     Ok(None)
 }
 
-fn write_api_key_to_config(api_key: &str) -> Result<(), io::Error> {
+fn write_config(config: &Config) -> Result<(), io::Error> {
     let config_path = match get_config_path()? {
         Some(path) => path,
         None => {
@@ -33,18 +41,15 @@ fn write_api_key_to_config(api_key: &str) -> Result<(), io::Error> {
             ))
         }
     };
-    let json = serde_json::json!({
-        "apiKey": api_key
-    });
-    let content = serde_json::to_string_pretty(&json)?;
+    let content = serde_json::to_string(config)?;
     fs::write(config_path, content)?;
     Ok(())
 }
 
-pub fn set_api_key(api_key: &str) -> Result<(), io::Error> {
-    write_api_key_to_config(api_key)
+pub fn set_config(config: &Config) -> Result<(), io::Error> {
+    write_config(config)
 }
 
-pub fn get_api_key() -> Result<Option<String>, io::Error> {
-    read_api_key_from_config()
+pub fn get_config() -> Result<Option<Config>, io::Error> {
+    read_config()
 }

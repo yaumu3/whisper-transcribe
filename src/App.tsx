@@ -5,7 +5,7 @@ import { ALLOWED_FILE_EXTENSIONS } from "./constants";
 import { useEffect, useState } from "react";
 import { TauriEvent, listen } from "@tauri-apps/api/event";
 import { appWindow } from "@tauri-apps/api/window";
-import ConfigForm from "./components/ConfigForm";
+import ConfigForm, { Config } from "./components/ConfigForm";
 
 enum AppStatus {
   Idle,
@@ -183,8 +183,8 @@ function App() {
     resetAppStatus();
   };
 
-  const saveConfig = () => {
-    // TODO: save config
+  const saveConfig = (config: Config) => {
+    invoke("set_config", { config });
     resetAppStatus();
   };
 

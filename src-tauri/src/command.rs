@@ -1,15 +1,17 @@
+use crate::config::Config;
+
 #[tauri::command]
-pub fn get_api_key_from_config_file() -> Result<String, String> {
-    match crate::config::get_api_key() {
-        Ok(Some(api_key)) => Ok(api_key),
+pub fn get_config() -> Result<Config, String> {
+    match crate::config::get_config() {
+        Ok(Some(config)) => Ok(config),
         Ok(_) => Err("No API key found in config file".to_owned()),
         Err(e) => Err(e.to_string()),
     }
 }
 
 #[tauri::command]
-pub fn set_api_key_to_config_file(api_key: &str) -> Result<(), String> {
-    if crate::config::set_api_key(api_key).is_ok() {
+pub fn set_config(config: Config) -> Result<(), String> {
+    if crate::config::set_config(&config).is_ok() {
         Ok(())
     } else {
         Err("Failed to set API key.".to_owned())
@@ -17,13 +19,13 @@ pub fn set_api_key_to_config_file(api_key: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub async fn post_to_whisper(lang: &str, file_path: &str) -> Result<String, String> {
-    let api_key = match crate::config::get_api_key() {
+pub async fn post_to_whisper(file_path: &str) -> Result<String, String> {
+    let config = match crate::config::get_config() {
         Ok(Some(api_key)) => api_key,
         Ok(_) => return Err("No API key found in config file".to_owned()),
         Err(e) => return Err(e.to_string()),
     };
-    tokio::task::block_in_place(move || match crate::api::post(&api_key, lang, file_path) {
+    tokio::task::block_in_place(move || match crate::api::post(&config, file_path) {
         Ok(response) => Ok(response),
         Err(e) => Err(e.to_string()),
     })

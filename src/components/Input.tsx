@@ -5,10 +5,11 @@ type InputProps = {
   placeholder?: string;
   value?: string;
   spellcheck?: boolean;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 function Input(props: InputProps) {
-  const { type, placeholder, value, spellcheck } = props;
+  const { type, placeholder, value, spellcheck, onChange } = props;
   return (
     <input
       className="input"
@@ -16,6 +17,7 @@ function Input(props: InputProps) {
       placeholder={placeholder}
       value={value}
       spellCheck={spellcheck}
+      onChange={(event) => onChange(event)}
     ></input>
   );
 }
