@@ -79,16 +79,6 @@
   font-weight: 800;
 }
 
-.transcription {
-  flex: 1;
-  overflow: scroll;
-  text-align: left;
-  font-size: 12px;
-  -webkit-user-select: auto;
-  user-select: auto;
-  cursor: text;
-}
-
 .buttons {
   display: flex;
   flex-direction: row;

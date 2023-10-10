@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { TauriEvent, listen } from "@tauri-apps/api/event";
 import { appWindow } from "@tauri-apps/api/window";
 import ConfigForm, { Config } from "./components/ConfigForm";
+import TextArea from "./components/TextArea";
 
 enum AppStatus {
   Idle,
@@ -240,7 +241,12 @@ function App() {
         return (
           <div className="click-or-drop-area inactive">
             <div className="transcribed-file-name">{transcribingFileName}</div>
-            <div className="transcription">{transcription}</div>
+            <TextArea
+              value={transcription}
+              onChange={() => {}}
+              disabled={true}
+            />
+            {/* <div className="transcription">{transcription}</div> */}
             <div className="buttons">
               <button
                 className="button button-discard"

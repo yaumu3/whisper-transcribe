@@ -4,7 +4,7 @@ type InputProps = {
   type: string;
   placeholder?: string;
   value?: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   spellcheck?: boolean;
   maxLength?: number;
   min?: number;
@@ -30,7 +30,7 @@ function Input(props: InputProps) {
       type={type}
       placeholder={placeholder}
       value={value}
-      onChange={(event) => onChange(event)}
+      onChange={onChange}
       spellCheck={spellcheck}
       maxLength={maxLength}
       min={min}
