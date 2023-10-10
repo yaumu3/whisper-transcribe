@@ -74,9 +74,11 @@
 
 .transcribed-file-name {
   width: 100%;
-  text-align: left;
   font-size: 16px;
   font-weight: 800;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .buttons {
