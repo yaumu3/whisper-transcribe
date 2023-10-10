@@ -34,6 +34,18 @@ function ConfigForm(props: ConfigFormProps) {
   const { cancelConfig, saveConfig } = props;
   return (
     <form className="config-form">
+      <div className="config-remark">
+        Please check{" "}
+        <span
+          className="link-like-text"
+          onClick={() =>
+            open("https://platform.openai.com/docs/api-reference/audio")
+          }
+        >
+          API doc
+        </span>{" "}
+        for detail.
+      </div>
       <LabeledItem title="OpenAI API key">
         <Input
           type="password"
