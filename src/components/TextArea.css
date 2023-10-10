@@ -6,7 +6,7 @@
   border: 0;
   font-size: 0.8em;
   font-family: inherit;
-  color: #0f0f0f;
+  color: inherit;
   background-color: #ffffff;
   width: 100%;
   flex: 1;
@@ -15,7 +15,6 @@
 
 @media (prefers-color-scheme: dark) {
   .textarea {
-    color: #ffffff;
-    background-color: #0f0f0f98;
+    background-color: #0f0f0f;
   }
 }
