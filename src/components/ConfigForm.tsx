@@ -4,6 +4,7 @@ import LabeledItem from "./LabeledItem";
 import TextArea from "./TextArea";
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
+import "./ConfigForm.css";
 
 type ConfigFormProps = {
   cancelConfig: () => void;

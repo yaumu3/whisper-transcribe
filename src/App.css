@@ -126,15 +126,6 @@
   background-color: #e2e2e2;
 }
 
-.config-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 4px;
-  padding-bottom: 16px;
-}
-
 .link-like-text {
   text-decoration: underline;
   cursor: pointer;
