@@ -8,6 +8,11 @@ import { appWindow } from "@tauri-apps/api/window";
 import ConfigForm, { Config } from "./components/ConfigForm";
 import TextArea from "./components/TextArea";
 
+// Path utils
+const pathToFileName = (path: string) => path.replace(/^.*[\\\/]/, "");
+const pathToParent = (path: string) =>
+  path.slice(0, -pathToFileName(path).length);
+
 enum AppStatus {
   Idle,
   Transcribing,
@@ -18,14 +23,14 @@ enum AppStatus {
 function App() {
   const [hoveringClickOrDropArea, setHoveringClickOrDropArea] = useState(false);
   const [appStatus, setAppStatus] = useState(AppStatus.Idle);
-  const [transcribingFileName, setTranscribingFileName] = useState("");
+  const [transcribingFilePath, setTranscribingFilePath] = useState("");
   const [transcription, setTranscription] = useState("");
   const resetAppStatus = () => {
     setAppStatus(() => AppStatus.Idle);
   };
-  const setAppStatusToTranscribing = (fileNameToTranscribe: string) => {
+  const setAppStatusToTranscribing = (path: string) => {
     setAppStatus(() => AppStatus.Transcribing);
-    setTranscribingFileName(() => fileNameToTranscribe);
+    setTranscribingFilePath(() => path);
   };
   const setAppStatusToTranscribed = (transcribedText: string) => {
     setAppStatus(() => AppStatus.Transcribed);
@@ -98,13 +103,12 @@ function App() {
   }, [appStatus]);
 
   const postToWhisper = async (filePath: string) => {
-    const fileName = filePath.replace(/^.*[\\\/]/, "");
     const uploadConfirmed = await confirm(
-      `Are you sure to upload ${fileName}?`
+      `Are you sure to upload ${pathToFileName(filePath)}?`
     );
     if (!uploadConfirmed) return;
 
-    setAppStatusToTranscribing(fileName);
+    setAppStatusToTranscribing(filePath);
     invoke<string>("post_to_whisper", {
       lang: "en",
       filePath: filePath,
@@ -158,6 +162,7 @@ function App() {
           extensions: ["txt"],
         },
       ],
+      defaultPath: pathToParent(transcribingFilePath),
     });
     if (saveFilePath === null) {
       // Save dialog was dismissed without specifying a path
@@ -229,7 +234,7 @@ function App() {
             <div className="app-status-icon transcribing" />
             <div className="app-status-text-wrapper">
               <div className="app-status-text">
-                Transcribing {transcribingFileName}
+                Transcribing {pathToFileName(transcribingFilePath)}
               </div>
               <div className="app-status-caveat">
                 This may take a few minutes.
@@ -240,7 +245,9 @@ function App() {
       case AppStatus.Transcribed:
         return (
           <div className="click-or-drop-area inactive">
-            <div className="transcribed-file-name">{transcribingFileName}</div>
+            <div className="transcribed-file-name">
+              {pathToFileName(transcribingFilePath)}
+            </div>
             <TextArea
               value={transcription}
               onChange={() => {}}
