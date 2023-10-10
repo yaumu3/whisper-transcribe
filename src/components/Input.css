@@ -7,13 +7,13 @@
   border: 0;
   font-size: 1em;
   font-family: inherit;
-  color: #0f0f0f;
+  color: #202020;
   background-color: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   .input {
     color: #ffffff;
-    background-color: #0f0f0f;
+    background-color: #202020;
   }
 }
