@@ -62,6 +62,7 @@ function ConfigForm(props: ConfigFormProps) {
           spellcheck={false}
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
+          maxLength={2}
         />
       </LabeledItem>
       <LabeledItem title="Prompt (Optional)" grow={true}>
@@ -75,6 +76,9 @@ function ConfigForm(props: ConfigFormProps) {
           type="number"
           value={String(temperature)}
           onChange={(e) => setTemperature(e.target.value)}
+          max={1}
+          min={0}
+          step={0.1}
         />
       </LabeledItem>
       <div className="buttons">
