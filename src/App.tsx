@@ -214,12 +214,20 @@ function App() {
           >
             <div className="app-status-icon idle" />
             <div className="app-status-text-wrapper">
-              <div className="app-status-text">
-                Click or drop file to this area
-              </div>
-              <div className="app-status-caveat">
-                Maximum file size is 25MB.
-              </div>
+              {isReadyToTranscribe ? (
+                <>
+                  <div className="app-status-text">
+                    Click or drop file to this area
+                  </div>
+                  <div className="app-status-caveat">
+                    Maximum file size is 25MB.
+                  </div>
+                </>
+              ) : (
+                <div className="app-status-text">
+                  ⬇ Set your API key from here ⬇
+                </div>
+              )}
             </div>
             <div>
               <button
