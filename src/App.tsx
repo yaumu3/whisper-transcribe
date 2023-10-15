@@ -21,6 +21,7 @@ enum AppStatus {
 }
 
 function App() {
+  const [isReadyToTranscribe, setIsReadyToTranscribe] = useState(false);
   const [hoveringClickOrDropArea, setHoveringClickOrDropArea] = useState(false);
   const [appStatus, setAppStatus] = useState(AppStatus.Idle);
   const [transcribingFilePath, setTranscribingFilePath] = useState("");
@@ -46,6 +47,11 @@ function App() {
     "There is an unsaved transcription. Are you sure to discard it? This action cannot be reverted.";
 
   useEffect(() => {
+    const getIsReadyToTranscribe = async () => {
+      return await invoke<boolean>("is_ready_to_transcribe");
+    };
+    getIsReadyToTranscribe().then((isReady) => setIsReadyToTranscribe(isReady));
+
     const unlistenWindowCloseRequested = appWindow.onCloseRequested(
       async (e) => {
         const isOkToCloseWindow = async () => {
@@ -71,7 +77,7 @@ function App() {
     const unlisteners = [unlistenWindowCloseRequested];
 
     // File hover by tauri API
-    if (appStatus === AppStatus.Idle) {
+    if (isReadyToTranscribe && appStatus === AppStatus.Idle) {
       const unlistenFileDropHover = listen<TauriEvent.WINDOW_FILE_DROP_HOVER>(
         TauriEvent.WINDOW_FILE_DROP_HOVER,
         async () => {
@@ -199,10 +205,10 @@ function App() {
       case AppStatus.Idle:
         return (
           <div
-            className={`click-or-drop-area idle ${
+            className={`click-or-drop-area ${
               hoveringClickOrDropArea ? "hover" : ""
-            }`}
-            onClick={openFileChooseDialog}
+            } ${isReadyToTranscribe ? "idle" : "inactive"}`}
+            onClick={isReadyToTranscribe ? openFileChooseDialog : () => {}}
             onPointerEnter={() => setHoveringClickOrDropArea(true)}
             onPointerLeave={() => setHoveringClickOrDropArea(false)}
           >

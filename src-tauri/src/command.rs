@@ -1,6 +1,14 @@
 use crate::config::Config;
 
 #[tauri::command]
+pub fn is_ready_to_transcribe() -> Result<bool, ()> {
+    match crate::config::get_config() {
+        Ok(_) => Ok(true),
+        _ => Ok(false),
+    }
+}
+
+#[tauri::command]
 pub fn get_config() -> Result<Config, String> {
     match crate::config::get_config() {
         Ok(Some(config)) => Ok(config),
