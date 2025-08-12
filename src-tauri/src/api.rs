@@ -56,11 +56,8 @@ impl<'de> Deserialize<'de> for TranscriptionModel {
     where
         D: Deserializer<'de>,
     {
-        let s: Option<String> = Option::deserialize(deserializer)?;
-        match s {
-            Some(s) => Ok(TranscriptionModel::from_str(&s).unwrap_or_default()),
-            None => Ok(TranscriptionModel::default()),
-        }
+        let s = String::deserialize(deserializer).unwrap_or_default();
+        Ok(TranscriptionModel::from_str(&s).unwrap_or_default())
     }
 }
 
