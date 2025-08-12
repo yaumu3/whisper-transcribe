@@ -56,8 +56,9 @@ impl<'de> Deserialize<'de> for TranscriptionModel {
     where
         D: Deserializer<'de>,
     {
-        let s = String::deserialize(deserializer).unwrap_or_default();
-        Ok(TranscriptionModel::from_str(&s).unwrap_or_default())
+        let s = String::deserialize(deserializer)?;
+        TranscriptionModel::from_str(&s)
+            .map_err(|_| serde::de::Error::custom(format!("invalid transcription model: {}", s)))
     }
 }
 
