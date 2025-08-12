@@ -1,5 +1,6 @@
 import { open } from "@tauri-apps/api/shell";
 import Input from "./Input";
+import Select from "./Select";
 import LabeledItem from "./LabeledItem";
 import TextArea from "./TextArea";
 import { useEffect, useState } from "react";
@@ -11,8 +12,15 @@ type ConfigFormProps = {
   saveConfig: (config: Config) => void;
 };
 
+const TRANSCRIPTION_MODELS = [
+  "gpt-4o-transcribe",
+  "gpt-4o-mini-transcribe",
+  "whisper-1",
+];
+
 export type Config = {
   apiKey: string;
+  transcriptionModel?: (typeof TRANSCRIPTION_MODELS)[number];
   language?: string;
   prompt?: string;
   temperature?: number;
@@ -20,12 +28,16 @@ export type Config = {
 
 function ConfigForm(props: ConfigFormProps) {
   const [apiKey, setApiKey] = useState("");
+  const [transcriptionModel, setTranscriptionModel] = useState<
+    (typeof TRANSCRIPTION_MODELS)[number] | undefined
+  >(undefined);
   const [language, setLanguage] = useState<string | undefined>(undefined);
   const [prompt, setPrompt] = useState<string | undefined>(undefined);
   const [temperature, setTemperature] = useState("");
   useEffect(() => {
     invoke<Config>("get_config").then((c) => {
       setApiKey(c.apiKey);
+      setTranscriptionModel(c.transcriptionModel);
       setLanguage(c.language);
       setPrompt(c.prompt);
       setTemperature(c.temperature === 0 ? "0" : String(c.temperature || ""));
@@ -39,7 +51,9 @@ function ConfigForm(props: ConfigFormProps) {
         <span
           className="link-like-text"
           onClick={() =>
-            open("https://platform.openai.com/docs/api-reference/audio")
+            open(
+              "https://platform.openai.com/docs/api-reference/audio/createTranscription"
+            )
           }
         >
           API doc
@@ -52,6 +66,13 @@ function ConfigForm(props: ConfigFormProps) {
           placeholder="sk-..."
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
+        />
+      </LabeledItem>
+      <LabeledItem title="Model">
+        <Select
+          value={transcriptionModel ?? TRANSCRIPTION_MODELS[0]}
+          values={TRANSCRIPTION_MODELS}
+          onChange={(e) => setTranscriptionModel(e.currentTarget.value)}
         />
       </LabeledItem>
       <LabeledItem
@@ -103,6 +124,7 @@ function ConfigForm(props: ConfigFormProps) {
           onClick={() =>
             saveConfig({
               apiKey,
+              transcriptionModel: transcriptionModel ?? TRANSCRIPTION_MODELS[0],
               language: language || undefined,
               prompt: prompt || undefined,
               temperature:

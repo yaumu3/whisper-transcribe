@@ -1,9 +1,66 @@
+use std::{fmt::Display, str::FromStr};
+
 use async_openai::{
     config::OpenAIConfig, error::OpenAIError, types::CreateTranscriptionRequest, Client,
 };
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::config::Config;
-const WHISPER_MODEL_NAME: &str = "whisper-1";
+
+#[derive(Debug, Clone, Copy)]
+pub enum TranscriptionModel {
+    Gpt4oTranscribe,
+    Gpt4oMiniTranscribe,
+    Whisper1,
+}
+
+impl Default for TranscriptionModel {
+    fn default() -> Self {
+        Self::Gpt4oTranscribe
+    }
+}
+
+impl FromStr for TranscriptionModel {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "gpt-4o-transcribe" => Ok(Self::Gpt4oTranscribe),
+            "gpt-4o-mini-transcribe" => Ok(Self::Gpt4oMiniTranscribe),
+            "whisper-1" => Ok(Self::Whisper1),
+            _ => Err(format!("invalid transcription model: {}", s)),
+        }
+    }
+}
+
+impl Display for TranscriptionModel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TranscriptionModel::Gpt4oTranscribe => write!(f, "gpt-4o-transcribe"),
+            TranscriptionModel::Gpt4oMiniTranscribe => write!(f, "gpt-4o-mini-transcribe"),
+            TranscriptionModel::Whisper1 => write!(f, "whisper-1"),
+        }
+    }
+}
+
+impl Serialize for TranscriptionModel {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for TranscriptionModel {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        TranscriptionModel::from_str(&s)
+            .map_err(|_| serde::de::Error::custom(format!("invalid transcription model: {}", s)))
+    }
+}
 
 #[tokio::main]
 pub async fn post(config: &Config, file_path: &str) -> Result<String, OpenAIError> {
@@ -12,7 +69,7 @@ pub async fn post(config: &Config, file_path: &str) -> Result<String, OpenAIErro
     let request = CreateTranscriptionRequest {
         file: file_path.into(),
         response_format: None,
-        model: WHISPER_MODEL_NAME.to_owned(),
+        model: config.transcription_model.to_string(),
         language: config.language.to_owned(),
         prompt: config.prompt.to_owned(),
         temperature: config.temperature,

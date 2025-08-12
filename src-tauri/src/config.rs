@@ -1,10 +1,14 @@
 use serde::{Deserialize, Serialize};
 use std::{fs, io, path::PathBuf};
 
+use crate::api::TranscriptionModel;
+
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     pub api_key: String,
+    #[serde(default)]
+    pub transcription_model: TranscriptionModel,
     pub language: Option<String>,
     pub prompt: Option<String>,
     pub temperature: Option<f32>,
