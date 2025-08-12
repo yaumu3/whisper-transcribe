@@ -39,7 +39,9 @@ function ConfigForm(props: ConfigFormProps) {
         <span
           className="link-like-text"
           onClick={() =>
-            open("https://platform.openai.com/docs/api-reference/audio")
+            open(
+              "https://platform.openai.com/docs/api-reference/audio/createTranscription"
+            )
           }
         >
           API doc
