@@ -21,13 +21,13 @@ impl Default for TranscriptionModel {
 }
 
 impl FromStr for TranscriptionModel {
-    type Err = ();
+    type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "gpt-4o-transcribe" => Ok(Self::Gpt4oTranscribe),
             "gpt-4o-mini-transcribe" => Ok(Self::Gpt4oMiniTranscribe),
             "whisper-1" => Ok(Self::Whisper1),
-            _ => Err(()),
+            _ => Err(format!("invalid transcription model: {}", s)),
         }
     }
 }
